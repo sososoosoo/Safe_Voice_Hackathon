@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Safe Voice</title>
+  <style>
+    :root{
+      /* base colors */
+      --ink:#0b0b0c;
+      --muted:#6b7280;
+
+      /* gradients */
+      --g-app-bg:
+        radial-gradient(1100px 550px at -10% -20%, #f1f5f9 0%, #eef2f7 40%, #e9edf5 100%),
+        linear-gradient(180deg, #f7f8fb 0%, #f2f4f7 100%);
+      --g-hero: linear-gradient(160deg,#0e0f11 0%,#15161a 48%,#0c0c0e 100%);
+      --g-hero-glow-1: radial-gradient(600px 220px at 15% -30%, rgba(255,255,255,.08), transparent 70%);
+      --g-hero-glow-2: radial-gradient(600px 220px at 95% 0%, rgba(255,255,255,.06), transparent 70%);
+
+      --g-card: linear-gradient(180deg,#ffffff 0%, #fafafa 100%);
+      --g-border: linear-gradient(180deg, rgba(0,0,0,.16), rgba(255,255,255,.38));
+
+      --g-mic: linear-gradient(160deg,#0f1113 0%, #1b1d22 100%);
+      --g-mic-highlight: radial-gradient(120px 120px at 35% 25%, rgba(255,255,255,.08) 0%, transparent 65%);
+
+      --g-sos: linear-gradient(135deg,#f43f5e 0%, #ef4444 60%, #f97316 115%);
+      --g-blue: linear-gradient(135deg,#60a5fa 0%, #3b82f6 100%);
+      --g-green: linear-gradient(135deg,#34d399 0%, #16a34a 100%);
+      --g-purple: linear-gradient(135deg,#a78bfa 0%, #8b5cf6 100%);
+      --g-indigo: linear-gradient(135deg,#818cf8 0%, #6366f1 100%);
+
+      /* radii & shadows */
+      --radius-xl:28px; --radius-lg:18px; --radius-md:14px;
+      --shadow-lg: 0 24px 48px rgba(0,0,0,.18);
+      --shadow-md: 0 14px 32px rgba(0,0,0,.12);
+      --shadow-sm: 0 8px 18px rgba(0,0,0,.10);
+    }
+
+    *{box-sizing:border-box}
+    html,body{
+      margin:0; color:var(--ink);
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Pretendard,Apple SD Gothic Neo,Noto Sans KR,sans-serif;
+      background: var(--g-app-bg);
+    }
+    .shell{max-width: 420px; margin:0 auto; padding: 16px 16px 28px;}
+
+    /* ===== 헤더 (딥블랙 그라데이션) ===== */
+    .hero{
+      position: sticky; top:0; z-index:10; color:#fff;
+      border-radius: 28px; padding: 28px 24px 22px;
+      background: var(--g-hero);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+    .hero::after{
+      content:""; position:absolute; inset:-1px; pointer-events:none;
+      background: var(--g-hero-glow-1), var(--g-hero-glow-2);
+    }
+    .brand{font-weight:800; font-size: 34px; letter-spacing:.2px; line-height:1.1}
+    .subtitle{opacity:.92; margin-top:6px; font-size:16px}
+
+    /* ===== 상태 카드 (은은한 그라데이션 + 그라데이션 보더) ===== */
+    .status-card{
+      position: relative; margin:14px 6px 20px; padding:18px 20px; border-radius: 28px;
+      background: var(--g-card) padding-box, var(--g-border) border-box;
+      border:1px solid transparent; box-shadow: var(--shadow-md);
+    }
+    .status-line{display:flex; align-items:center; gap:10px; color:#111; font-weight:600}
+    .dot{width:10px; height:10px; border-radius:50%; background:#3b82f6}
+    .status-title{font-size:22px; font-weight:900; margin:10px 0 4px}
+    .location-line{display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap}
+    .location-text{color:#6b7280; font-size:15px}
+    .refresh{color:#2563eb; font-weight:800; text-decoration:none}
+    .refresh:active{opacity:.7}
+
+    /* ===== 마이크 버튼 (딥블랙 그라데이션 + 하이라이트) ===== */
+    .mic-wrap{display:flex; flex-direction:column; align-items:center; margin: 18px 0 6px}
+    .mic-btn{
+      width:152px; height:152px; border-radius:50%; border:none; cursor:pointer;
+      display:grid; place-items:center;
+      background: var(--g-mic);
+      box-shadow: 0 26px 46px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,255,255,.05);
+      position: relative; transition: transform .08s ease;
+    }
+    .mic-btn::before{
+      content:""; position:absolute; inset:0; border-radius:inherit; background: var(--g-mic-highlight);
+    }
+    .mic-btn:active{transform: scale(.985)}
+    .mic-icon{width:48px; height:48px; color:#fff}
+    .mic-label{font-size:28px; font-weight:900; margin:14px 0 2px}
+
+    /* ===== 섹션 타이틀 ===== */
+    h2.section{font-size:24px; font-weight:900; margin:20px 8px 12px}
+
+    /* ===== 112 버튼 (레드 그라데이션) ===== */
+    .sos{
+      border:none; width:100%; padding:18px 20px; border-radius: 18px;
+      color:#fff; background: var(--g-sos); font-size:22px; font-weight:900;
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      box-shadow: var(--shadow-md); text-decoration:none; cursor:pointer;
+    }
+    .sos svg{width:24px; height:24px; color:#fff}
+
+    /* ===== 빠른 액션 (각 색상 그라데이션) ===== */
+    .grid{display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:10px}
+    .tile{
+      border:none; border-radius: 14px; padding:18px 14px; min-height:74px;
+      color:#fff; font-weight:800; font-size:17px;
+      display:flex; gap:10px; align-items:center; justify-content:center;
+      box-shadow: var(--shadow-sm); text-decoration:none; cursor:pointer;
+    }
+    .tile svg{width:22px; height:22px; color:#fff}
+    .tile.blue{background: var(--g-blue)}
+    .tile.green{background: var(--g-green)}
+    .tile.purple{background: var(--g-purple)}
+    .tile.indigo{background: var(--g-indigo)}
+  </style>
+</head>
+<body>
+  <main class="shell" aria-label="Safe Voice App">
+    <!-- 헤더 : 딥블랙 그라데이션 -->
+    <header class="hero" role="banner">
+      <div class="brand" aria-label="앱 이름">Safe Voice</div>
+      <div class="subtitle">여성 안심 귀갓길</div>
+    </header>
+
+    <!-- 상태 카드 : 현재 상태 / 위치 -->
+    <section class="status-card" aria-label="현재 상태">
+      <div class="status-line">
+        <span class="dot" aria-hidden="true"></span>
+        <span>현재 상태</span>
+      </div>
+      <div id="statusText" class="status-title">안전 모니터링 준비중</div>
+      <div class="location-line">
+        <div id="locationText" class="location-text">현재 위치: 서울특별시 강남구</div>
+        <a id="refreshLocation" href="#" class="refresh">위치 새로고침</a>
+      </div>
+    </section>
+
+    <!-- 마이크 : 딥블랙 그라데이션 버튼 -->
+    <section class="mic-wrap" aria-label="감지 시작">
+      <button id="micButton" class="mic-btn" aria-pressed="false" aria-label="감지 시작">
+        <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <path d="M12 19v3"/>
+        </svg>
+      </button>
+      <div class="mic-label">감지 시작</div>
+    </section>
+
+    <!-- 긴급 신고 : 레드 그라데이션 -->
+    <h2 class="section">긴급 신고</h2>
+    <a id="policeBtn" class="sos" href="tel:112" role="button" aria-label="경찰서 112 전화 연결">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.78.62 2.63a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.45-1.14a2 2 0 0 1 2.11-.45c.85.29 1.73.5 2.63.62A2 2 0 0 1 22 16.92z"/>
+      </svg>
+      경찰서 112
+    </a>
+
+    <!-- 빠른 액션 : 컬러 그라데이션 타일 -->
+    <h2 class="section">빠른 액션</h2>
+    <div class="grid" role="group" aria-label="빠른 액션 버튼">
+      <a id="shareLocation" class="tile blue" href="#" role="button" aria-label="내 위치 공유">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 21s-6-4.35-6-10a6 6 0 1 1 12 0c0 5.65-6 10-6 10z"/>
+          <circle cx="12" cy="11" r="2"/>
+        </svg>
+        내 위치 공유
+      </a>
+      <a id="contactFamily" class="tile green" href="tel:01000000000" role="button" aria-label="가족에게 연락">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.78.62 2.63a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.45-1.14a2 2 0 0 1 2.11-.45c.85.29 1.73.5 2.63.62A2 2 0 0 1 22 16.92z"/>
+        </svg>
+        가족에게 연락
+      </a>
+      <a id="requestHelp" class="tile purple" href="#" role="button" aria-label="도움 요청">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
+        </svg>
+        도움 요청
+      </a>
+      <a id="homeMode" class="tile indigo" href="#" role="button" aria-label="귀가 모드">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>
+        </svg>
+        귀가 모드
+      </a>
+    </div>
+  </main>
+
+  <script>
+    // 위치 새로고침
+    const $locationText = document.getElementById('locationText');
+    document.getElementById('refreshLocation').addEventListener('click', (e)=>{
+      e.preventDefault();
+      if(!navigator.geolocation){ alert('이 브라우저는 위치 서비스를 지원하지 않습니다.'); return; }
+      navigator.geolocation.getCurrentPosition(
+        pos=>{
+          const {latitude, longitude} = pos.coords;
+          $locationText.textContent = `현재 위치: 위도 ${latitude.toFixed(6)}, 경도 ${longitude.toFixed(6)}`;
+        },
+        _=> alert('위치 권한을 확인해주세요.'),
+        {enableHighAccuracy:true, timeout:8000}
+      );
+    });
+
+    // 내 위치 공유
+    document.getElementById('shareLocation').addEventListener('click', async (e)=>{
+      e.preventDefault();
+      const text = $locationText.textContent.replace(/^현재 위치:\s*/, '');
+      try{
+        if(navigator.share){ await navigator.share({title:'내 위치', text}); }
+        else{ await navigator.clipboard.writeText(text); alert('위치를 클립보드에 복사했습니다.'); }
+      }catch(_){}
+    });
+
+    // 마이크 토글 (UI 데모)
+    const micBtn = document.getElementById('micButton');
+    const statusText = document.getElementById('statusText');
+    let sensing = false;
+    micBtn.addEventListener('click', ()=>{
+      sensing = !sensing;
+      micBtn.setAttribute('aria-pressed', String(sensing));
+      statusText.textContent = sensing ? '모니터링 중' : '안전 모니터링 준비중';
+    });
+
+    // 도움/귀가 모드 후속 연동 포인트
+    document.getElementById('requestHelp').addEventListener('click', e=>{
+      e.preventDefault(); alert('도움 요청 신호를 전송하도록 연동하세요. (Dart에서 이 id를 바인딩)');
+    });
+    document.getElementById('homeMode').addEventListener('click', e=>{
+      e.preventDefault(); alert('귀가 모드 로직을 여기에 연결하세요. (Dart 바인딩 포인트)');
+    });
+  </script>
+</body>
+</html>
